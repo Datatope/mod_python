@@ -142,7 +142,7 @@ if PY2:
             """Return printable representation (to pass unit tests)."""
             return "Field(%s, %s)" % (repr(self.name), repr(self.value))
 else:
-    class StringField(bytes):
+    class StringField(str):
         """ This class is basically a string with
         added attributes for compatibility with std lib cgi.py. Basically, this
         works the opposite of Field, as it stores its data in a string, but creates
@@ -156,14 +156,11 @@ else:
         disp_options = None
 
         def __new__(self, value):
-            if PY2:
-                return bytes.__new__(self, value)
-            else:
-                str_value = value.decode("utf-8") if isinstance(value, bytes) else value
-                return bytes.__new__(self, str(str_value), encoding="utf-8")
+            str_value = value.decode("utf-8") if isinstance(value, bytes) else value
+            return str.__new__(self,str_value)
 
         def __init__(self, value):
-            self.value = value
+            self.value = value.decode("utf-8") if isinstance(value, bytes) else value
 
         def __getattr__(self, name):
             if name != 'file':
@@ -416,7 +413,7 @@ class FieldStorage:
     def add_field(self, key, value):
         """Insert a field as key/value pair"""
         item = StringField(value)
-        item.name = key
+        item.name = key.decode("utf-8") if isinstance(key,bytes) else key
         self.list.append(item)
 
     def __setitem__(self, key, value):
