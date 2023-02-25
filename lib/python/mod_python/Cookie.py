@@ -47,6 +47,7 @@ import re
 import hmac
 import marshal
 import base64
+import hashlib
 
 PY2 = sys.version[0] == '2'
 
@@ -216,16 +217,16 @@ class SignedCookie(Cookie):
     def hexdigest(self, str):
         if not self.__data__["secret"]:
             raise CookieError("Cannot sign without a secret")
-        _hmac = hmac.new(self.__data__["secret"], self.name)
+        _hmac = hmac.new(self.__data__["secret"], self.name.encode(), digestmod=hashlib.md5)
         _hmac.update(str)
         if PY2:
             return _hmac.hexdigest()
         else:
-            return _hmac.hexdigest().decode()
+            return _hmac.hexdigest()
 
     def __str__(self):
 
-        result = ["%s=%s%s" % (self.name, self.hexdigest(self.value),
+        result = ["%s=%s%s" % (self.name, self.hexdigest(self.value.encode()),
                                self.value)]
         for name in self._valid_attr:
             if hasattr(self, name):
@@ -239,8 +240,8 @@ class SignedCookie(Cookie):
 
         sig, val = self.value[:32], self.value[32:]
 
-        mac = hmac.new(secret, self.name)
-        mac.update(val)
+        mac = hmac.new(secret, self.name.encode(), digestmod=hashlib.md5)
+        mac.update(val.encode())
 
         if mac.hexdigest() == sig:
             self.value = val
