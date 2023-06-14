@@ -415,6 +415,14 @@ class CallBack:
                         else:
                             result = value.args[0]
 
+                    # EPS - Not sure why, but at least redirect found in
+                    # util.py returns nested SERVER_RETURNs.  So this is meant
+                    # to peel away the extra layer to extract the int that
+                    # will prevent the assert from throwing an exception.
+                    # Didn't seem to be an issue with Python2
+                    if result.__class__ is _apache.SERVER_RETURN:
+                        result = result.args[0]
+
                     assert (result.__class__ is int), \
                             _result_warning % result.__class__
 
