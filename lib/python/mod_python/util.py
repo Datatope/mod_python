@@ -165,7 +165,7 @@ else:
         def __getattr__(self, name):
             if name != 'file':
                 raise AttributeError(name)
-            self.file = BytesIO(self.value)
+            self.file = BytesIO(self.value.encode("utf-8"))
             return self.file
 
         def __repr__(self):
