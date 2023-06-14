@@ -343,18 +343,15 @@ def dbm_cleanup(data):
     db = dbm.open(filename, 'c')
     try:
         old = []
-        s = db.first()
-        while 1:
-            key, val = s
+
+        for key in db.keys():
+            val = db[key]
             dict = loads(val)
             try:
                 if (time.time() - dict["_accessed"]) > dict["_timeout"]:
                     old.append(key)
             except KeyError:
                 old.append(key)
-            try:
-                s = next(db)
-            except KeyError: break
 
         for key in old:
             try:
